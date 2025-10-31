@@ -1,0 +1,9 @@
+{
+  "base_agg_seq_delta_fedavg_update_delta_sequential": {
+    "agg_method_name": "seq_delta_fedavg_update",
+    "global_clients_all_metrics_acc": 0.941972920696325,
+    "global_clients_metric_acc": 0.9957132050096663,
+    "plot_path": "/mnt/lustre-grete/projects/LLMticketsummarization/payman/NIST_EXPERIMENTS/prove_fl_BaseTrainer_grid_search/sequential_delta/base_agg_seq_delta_fedavg_update_delta_sequential/accuracies_over_rounds_sequential_delta_seq_delta_fedavg_update.png",
+    "json_path": "/mnt/lustre-grete/projects/LLMticketsummarization/payman/NIST_EXPERIMENTS/prove_fl_BaseTrainer_grid_search/sequential_delta/base_agg_seq_delta_fedavg_update_delta_sequential/accuracies_0.json"
+  }
+}

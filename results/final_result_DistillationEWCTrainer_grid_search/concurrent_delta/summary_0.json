@@ -1,0 +1,23 @@
+{
+  "base_agg_con_delta_capped_cgd_delta_concurrent": {
+    "agg_method_name": "con_delta_capped_cgd",
+    "global_clients_all_metrics_acc": 0.941972920696325,
+    "global_clients_metric_acc": 0.9957132050096663,
+    "plot_path": "/mnt/lustre-grete/projects/LLMticketsummarization/payman/NIST_EXPERIMENTS/final_result_DistillationEWCTrainer_grid_search/concurrent_delta/base_agg_con_delta_capped_cgd_delta_concurrent/accuracies_over_rounds_concurrent_delta_con_delta_capped_cgd.png",
+    "json_path": "/mnt/lustre-grete/projects/LLMticketsummarization/payman/NIST_EXPERIMENTS/final_result_DistillationEWCTrainer_grid_search/concurrent_delta/base_agg_con_delta_capped_cgd_delta_concurrent/accuracies_0.json"
+  },
+  "base_agg_con_delta_scaled_cgd_delta_concurrent": {
+    "agg_method_name": "con_delta_scaled_cgd",
+    "global_clients_all_metrics_acc": 0.941972920696325,
+    "global_clients_metric_acc": 0.9957132050096663,
+    "plot_path": "/mnt/lustre-grete/projects/LLMticketsummarization/payman/NIST_EXPERIMENTS/final_result_DistillationEWCTrainer_grid_search/concurrent_delta/base_agg_con_delta_scaled_cgd_delta_concurrent/accuracies_over_rounds_concurrent_delta_con_delta_scaled_cgd.png",
+    "json_path": "/mnt/lustre-grete/projects/LLMticketsummarization/payman/NIST_EXPERIMENTS/final_result_DistillationEWCTrainer_grid_search/concurrent_delta/base_agg_con_delta_scaled_cgd_delta_concurrent/accuracies_0.json"
+  },
+  "base_agg_con_delta_weighted_cgd_delta_concurrent": {
+    "agg_method_name": "con_delta_weighted_cgd",
+    "global_clients_all_metrics_acc": 0.941972920696325,
+    "global_clients_metric_acc": 0.9957132050096663,
+    "plot_path": "/mnt/lustre-grete/projects/LLMticketsummarization/payman/NIST_EXPERIMENTS/final_result_DistillationEWCTrainer_grid_search/concurrent_delta/base_agg_con_delta_weighted_cgd_delta_concurrent/accuracies_over_rounds_concurrent_delta_con_delta_weighted_cgd.png",
+    "json_path": "/mnt/lustre-grete/projects/LLMticketsummarization/payman/NIST_EXPERIMENTS/final_result_DistillationEWCTrainer_grid_search/concurrent_delta/base_agg_con_delta_weighted_cgd_delta_concurrent/accuracies_0.json"
+  }
+}

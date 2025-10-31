@@ -1,0 +1,59 @@
+[tool.poetry]
+name = "federated_adaptive_learning_nist"
+version = "0.1.0"
+description = "Federated Adaptive Learning Experiments on NIST"
+authors = ["payman <sadegh.keshtkar@gwdg.de>"]
+readme = "README.md"
+packages = [{ include = "federated_adaptive_learning_nist", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+# === PyTorch CUDA 12.1 stack (matches: torch 2.3.1 / tv 0.18.1 / ta 2.3.1) ===
+torch = { version = "2.3.1+cu121", source = "pytorch-cu121" }
+torchvision = { version = "0.18.1+cu121", source = "pytorch-cu121" }
+torchaudio = { version = "2.3.1+cu121", source = "pytorch-cu121" }
+
+# === Core utilities ===
+numpy = "^1.26.0"
+pandas = "^2.2.3"
+scikit-learn = "*"
+tqdm = ">=4.67.1,<5.0.0"
+requests = ">=2.32.3,<3.0.0"
+loguru = ">=0.7.3,<0.8.0"
+coverage = "^7.8.2"
+
+# === Plotting / visualization ===
+matplotlib = "^3.10.0"
+seaborn = "*"
+
+# === Image handling ===
+pillow = "*"
+
+# === Optional parallel + utils ===
+# (not strictly needed, but nice for grid-search stuff)
+joblib = "*"
+
+[tool.poetry.group.dev.dependencies]
+# Testing / dev utilities
+pytest = "^8.3.3"
+black = "^24.10.0"
+isort = "^5.13.2"
+mypy = "^1.12.1"
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+
+[tool.isort]
+profile = "black"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+# === PyTorch CUDA 12.1 wheels source ===
+[[tool.poetry.source]]
+name = "pytorch-cu121"
+url = "https://download.pytorch.org/whl/cu121"
+priority = "supplemental"
