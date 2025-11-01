@@ -2,6 +2,7 @@ import copy
 import torch
 import torch.nn.functional as F
 
+from federated_adaptive_learning_nist.constants import BEST_PROX_LAMBDA
 from src.federated_adaptive_learning_nist.data_utils import NistPath
 from src.federated_adaptive_learning_nist.model import FlexibleCNN
 from src.federated_adaptive_learning_nist.nist_logger import NistLogger
@@ -15,7 +16,7 @@ class CFProxTrainer(BaseTrainer):
     Loss = CE(outputs, labels) + λ_prox * ||θ - θ_global||^2
     """
 
-    def __init__(self, learning_rate=1e-3, weight_decay=1e-4, lambda_prox=0.9, global_model=None,        global_model_path=None):
+    def __init__(self, learning_rate=1e-3, weight_decay=1e-4, lambda_prox=BEST_PROX_LAMBDA, global_model=None,        global_model_path=None):
         super().__init__(learning_rate=learning_rate, weight_decay=weight_decay)
         self.lambda_prox = lambda_prox
         if not global_model_path:

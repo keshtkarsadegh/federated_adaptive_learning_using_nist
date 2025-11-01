@@ -2,7 +2,8 @@ import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Import the real driver
-from src.federated_adaptive_learning_nist.trainings.base_trainings import grid_search
+from src.federated_adaptive_learning_nist.trainings.base_trainings import  final_training
+
 """
 
 Purpose:
@@ -54,7 +55,7 @@ def generate(trainer_name: str,
     """
     if agg_method_name == "none":
         agg_method_name = None
-    return grid_search(
+    return final_training(
         trainer_name=trainer_name,
         scenario=scenario,
         metadata=metadata,
@@ -65,7 +66,7 @@ def generate(trainer_name: str,
     )
 
 
-def run_all_parallel(trainer_name="EWCTrainer",
+def generate_final_result_all_parallel(trainer_name="EWCTrainer",
                      outer_max_workers: int = 4,
                      inner_max_workers: int = 8,
                      parent_name="final_result"):
@@ -136,7 +137,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    all_results = run_all_parallel(
+    all_results = generate_final_result_all_parallel(
         trainer_name=args.trainer,
         outer_max_workers=args.outer_max_workers,
         inner_max_workers=args.inner_max_workers,

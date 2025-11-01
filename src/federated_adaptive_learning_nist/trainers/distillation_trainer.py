@@ -4,6 +4,7 @@ import torch
 import torch.nn.functional as F
 from tqdm import tqdm
 
+from federated_adaptive_learning_nist.constants import BEST_KD_T, BEST_KD_ALPHA
 from src.federated_adaptive_learning_nist.data_utils import NistPath
 from src.federated_adaptive_learning_nist.model import FlexibleCNN
 from src.federated_adaptive_learning_nist.nist_logger import NistLogger
@@ -11,7 +12,7 @@ from src.federated_adaptive_learning_nist.trainers.base_trainer import BaseTrain
 
 
 class DistillationTrainer(BaseTrainer):
-    def __init__(self, global_model_path=None, T=8.0, alpha=0.95):   # extra weight when student is wrong
+    def __init__(self, global_model_path=None, T=BEST_KD_T, alpha=BEST_KD_ALPHA):   # extra weight when student is wrong
         super().__init__()
         self.T = T
         self.alpha = alpha

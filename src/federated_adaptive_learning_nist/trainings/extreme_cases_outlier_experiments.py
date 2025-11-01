@@ -2,7 +2,7 @@ import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Import the real driver
-from src.federated_adaptive_learning_nist.trainings.base_trainings import grid_search
+from src.federated_adaptive_learning_nist.trainings.base_trainings import final_training
 """
 extreme_outlier_trainings.py
 
@@ -45,7 +45,7 @@ def generate(trainer_name: str,
              index: int,
              agg_method_name: str,
              parent_name: str,
-             inner_max_workers: int = 12):
+             inner_max_workers: int = 12,single_outlier=None):
 
     """
     Run one grid_search() job with the specified configuration.
@@ -64,7 +64,7 @@ def generate(trainer_name: str,
     """
     if agg_method_name == "none":
         agg_method_name = None
-    return grid_search(
+    return final_training(
         trainer_name=trainer_name,
         scenario=scenario,
         metadata=metadata,
@@ -72,13 +72,15 @@ def generate(trainer_name: str,
         agg_method_name=agg_method_name,
         parent_name=parent_name,
         inner_max_workers=inner_max_workers,
+        single_outlier=single_outlier
     )
 
 
 def run_all_parallel(trainer_name="EWCTrainer",
                      outer_max_workers: int = 4,
                      inner_max_workers: int = 8,
-                     parent_name="final_result"):
+                     parent_name="final_result",
+                     single_outlier=None):
     """
     Run all extreme-case jobs in parallel threads.
 
@@ -127,12 +129,24 @@ def run_all_parallel(trainer_name="EWCTrainer",
     results = []
     with ThreadPoolExecutor(max_workers=outer_max_workers) as outer:
         futs = [
-            outer.submit(generate, inner_max_workers=inner_max_workers, **job)
+            outer.submit(generate, inner_max_workers=inner_max_workers,single_outlier=single_outlier, **job)
             for job in jobs
         ]
         for f in as_completed(futs):
             results.append(f.result())
     return results
+
+
+def extreme_cases_final_training(single_outlier=None,parent_name="",):
+    all_results = run_all_parallel(
+        trainer_name="DistillationTrainer",
+        outer_max_workers=4,
+        inner_max_workers=4,
+        parent_name=parent_name,
+        single_outlier=single_outlier
+    )
+
+    print("All jobs done:", all_results)
 
 
 if __name__ == "__main__":

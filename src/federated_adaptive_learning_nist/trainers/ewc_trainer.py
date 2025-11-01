@@ -7,6 +7,7 @@ import torch
 import torch.nn.functional as F
 from tqdm import tqdm
 
+from federated_adaptive_learning_nist.constants import BEST_EWC_LAMBDA
 from src.federated_adaptive_learning_nist.data_utils import NistPath
 
 
@@ -26,7 +27,7 @@ def load_fisher_and_params(fisher_path, device):
 
 
 class EWCTrainer(BaseTrainer):
-    def __init__(self, fisher_path=None, ewc_lambda=8.0, ):
+    def __init__(self, fisher_path=None, ewc_lambda=BEST_EWC_LAMBDA ):
         super().__init__()
         self.ewc_lambda = ewc_lambda
         # print(f"device ewc: {self.device}")

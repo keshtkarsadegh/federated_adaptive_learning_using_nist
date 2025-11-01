@@ -107,7 +107,7 @@ Returns:
 
 
 # ---------- worker (inner unit) ----------
-def run_distillation_grid(scenario: str, metadata: str, cfg: tuple[float, float, str]):
+def run_distillation_grid(scenario: str, metadata: str, cfg: tuple[float, float, str],single_outlier=None):
     """
 Run one distillation configuration.
 
@@ -142,7 +142,7 @@ Returns:
     agg_method = getattr(agg_cls, agg_method_name)
 
     trainer = DistillationTrainer(T=T, alpha=alpha)
-    runner = BaseSequentialRunner(trainer=trainer) if scenario == "sequential" else BaseConcurrentRunner(trainer=trainer)
+    runner = BaseSequentialRunner(trainer=trainer,single_outlier=single_outlier) if scenario == "sequential" else BaseConcurrentRunner(trainer=trainer,single_outlier=single_outlier)
 
     exp_name = f"distill_T{T}_a{alpha}_agg_{agg_method_name}_{metadata}_{scenario}"
     NistLogger.debug(f"[Parallel] {exp_name}")
@@ -167,6 +167,7 @@ def grid_search(
     index: int,
     agg_method_name: str | None = None,
     inner_max_workers: int = 8,
+        single_outlier = None,
 ):
     """
     Run grid search for one (scenario, metadata) pair.
@@ -180,7 +181,7 @@ def grid_search(
         index (int): Index for naming output JSON.
         agg_method_name (str | None): Specific method to test, or all.
         inner_max_workers (int): Processes for this search.
-
+        single_outlier: either None or list of selected outliers' ids
     Returns:
         dict: Merged accuracy results.
     """
@@ -192,7 +193,7 @@ def grid_search(
     mp_ctx = get_context("spawn")  # safe when outer is threads
     results = []
     with ProcessPoolExecutor(max_workers=inner_max_workers, mp_context=mp_ctx) as ex:
-        futs = [ex.submit(run_distillation_grid, scenario, metadata, cfg) for cfg in param_grid]
+        futs = [ex.submit(run_distillation_grid, scenario, metadata, cfg,single_outlier) for cfg in param_grid]
         for f in as_completed(futs):
             results.append(f.result())
 
@@ -216,7 +217,7 @@ def grid_search(
 
 
 # ---------- outer driver (parallel only) ----------
-def run_all_parallel(outer_max_workers: int = 3, inner_max_workers: int = 8):
+def run_all_parallel(outer_max_workers: int = 3, inner_max_workers: int = 8,single_outlier=None):
     """
     Run predefined distillation grid search tasks in parallel.
 
@@ -225,6 +226,7 @@ def run_all_parallel(outer_max_workers: int = 3, inner_max_workers: int = 8):
     Args:
         outer_max_workers (int): Tasks to run in parallel.
         inner_max_workers (int): Processes per grid_search.
+        single_outlier: either None or list of selected outliers' ids
 
     Returns:
         list[dict]: Results for all tasks.
@@ -240,12 +242,18 @@ def run_all_parallel(outer_max_workers: int = 3, inner_max_workers: int = 8):
     results = []
     with ThreadPoolExecutor(max_workers=outer_max_workers) as outer:
         futs = [
-            outer.submit(grid_search, sc, md, idx, name, inner_max_workers)
+            outer.submit(grid_search, sc, md, idx, name, inner_max_workers,single_outlier)
             for (sc, md, idx, name) in tasks
         ]
         for f in as_completed(futs):
             results.append(f.result())
     return results
+
+def distillation_grid_search():
+    OUTER_MAX = 1   # how many tasks at once
+    INNER_MAX =20   # processes per task
+    for _ in run_all_parallel(outer_max_workers=OUTER_MAX, inner_max_workers=INNER_MAX,single_outlier=None):
+        pass
 
 
 if __name__ == "__main__":

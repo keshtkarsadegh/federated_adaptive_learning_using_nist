@@ -115,7 +115,7 @@ Returns:
 
 
 # ---------- worker (inner unit) ----------
-def run_distillation_grid(scenario: str, metadata: str, cfg: tuple[float, float, str]):
+def run_distillation_grid(scenario: str, metadata: str, cfg: tuple[float, float, str],single_outlier):
     """
     Execute a single distillation configuration and collect results.
 
@@ -151,7 +151,7 @@ def run_distillation_grid(scenario: str, metadata: str, cfg: tuple[float, float,
     agg_method = getattr(agg_cls, agg_method_name)
 
     trainer = DistillationTrainer(T=T, alpha=alpha)
-    runner = BaseSequentialRunner(trainer=trainer) if scenario == "sequential" else BaseConcurrentRunner(trainer=trainer)
+    runner = BaseSequentialRunner(trainer=trainer,single_outlier=single_outlier) if scenario == "sequential" else BaseConcurrentRunner(trainer=trainer,single_outlier=single_outlier)
 
     exp_name = f"distill_T{T}_a{alpha}_agg_{agg_method_name}_{metadata}_{scenario}"
     NistLogger.debug(f"[Parallel] {exp_name}")
@@ -176,6 +176,8 @@ def grid_search(
     index: int,
     agg_method_name: str | None = None,
     inner_max_workers: int = 8,
+        single_oulier=None,
+extreme_case="single"
 ):
     """
     Run parallel grid search over (T, alpha, agg_method) for one (scenario, metadata) pair.
@@ -203,7 +205,7 @@ def grid_search(
     mp_ctx = get_context("spawn")  # safe when outer is threads
     results = []
     with ProcessPoolExecutor(max_workers=inner_max_workers, mp_context=mp_ctx) as ex:
-        futs = [ex.submit(run_distillation_grid, scenario, metadata, cfg) for cfg in param_grid]
+        futs = [ex.submit(run_distillation_grid, scenario, metadata, cfg,single_oulier) for cfg in param_grid]
         for f in as_completed(futs):
             results.append(f.result())
 
@@ -213,7 +215,7 @@ def grid_search(
     for d in acc_dicts:
         merged.update(d)
 
-    parent_dir = Path(result_paths[0]) / "dual_outlier_distillation_grid_search"
+    parent_dir = Path(result_paths[0]) / f"{extreme_case}_outlier_distillation_grid_search"
     out_dir = parent_dir / f"{scenario}_{metadata}"
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -227,7 +229,7 @@ def grid_search(
 
 
 # ---------- outer driver (parallel only) ----------
-def run_all_parallel(outer_max_workers: int = 3, inner_max_workers: int = 8):
+def run_all_parallel(outer_max_workers: int = 3, inner_max_workers: int = 8,single_outlier=None, extreme_case="single"):
     """
     Top-level launcher: schedule multiple grid_search tasks concurrently (threads).
 
@@ -251,14 +253,18 @@ def run_all_parallel(outer_max_workers: int = 3, inner_max_workers: int = 8):
     results = []
     with ThreadPoolExecutor(max_workers=outer_max_workers) as outer:
         futs = [
-            outer.submit(grid_search, sc, md, idx, name, inner_max_workers)
+            outer.submit(grid_search, sc, md, idx, name, inner_max_workers,single_outlier,extreme_case)
             for (sc, md, idx, name) in tasks
         ]
         for f in as_completed(futs):
             results.append(f.result())
     return results
 
-
+def extreme_cases_grid_search(single_outlier, extreme_case):
+    OUTER_MAX = 2  # how many tasks at once
+    INNER_MAX = 8  # processes per task
+    for _ in run_all_parallel(outer_max_workers=OUTER_MAX, inner_max_workers=INNER_MAX,single_outlier=single_outlier,extreme_case=extreme_case):
+        pass
 if __name__ == "__main__":
     OUTER_MAX = 4   # how many tasks at once
     INNER_MAX =5   # processes per task

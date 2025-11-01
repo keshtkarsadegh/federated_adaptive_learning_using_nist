@@ -51,7 +51,7 @@ def process_json_file(json_path: Path) -> pd.DataFrame | None:
         return None
 
 
-def process_all_json_in_folder(root_folder: str):
+def top_6_configs(root_folder: str):
     """
     Walk through root folder, process all JSON files,
     save corresponding CSVs next to them.
@@ -70,4 +70,4 @@ def process_all_json_in_folder(root_folder: str):
 
 
 if __name__ == "__main__":
-    process_all_json_in_folder(".")
+    top_6_configs(".")

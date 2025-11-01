@@ -76,7 +76,8 @@ class BaseSequentialRunner:
                 - list[str]: restrict to given IDs (extreme cases).
             This applies equally to training runs and grid search experiments.
         """
-    def __init__(self, trainer):
+    def __init__(self, trainer,single_outlier=None):
+        self.single_outlier=single_outlier
         self.global_clients_all_metrics_acc = None
         self.global_clients_metric_acc = None
         self.global_metrics_acc = None
@@ -155,7 +156,7 @@ class BaseSequentialRunner:
         self.local_writers = split["local_writers"]
         self.global_writers = split["global_writers"]
 
-    def get_selected_outliers(self,single_outlier=[]):
+    def get_selected_outliers(self,):
         """
             Load IDs of selected outlier clients from JSON.
 
@@ -169,8 +170,8 @@ class BaseSequentialRunner:
         path = project_results_dir/ "outliers" / "selected_outliers.json"
         with open(path, "r") as f:
             self.selected_outliers = json.load(f)
-        if single_outlier:
-            self.selected_outliers = [sub for sub in self.selected_outliers if sub in single_outlier]
+        if self.single_outlier:
+            self.selected_outliers = [sub for sub in self.selected_outliers if sub in self.single_outlier]
 
     def get_test_loaders(self, batch_size):
         """
@@ -286,8 +287,8 @@ class BaseSequentialRunner:
             self.fl_sequence(writer, batch_size, epochs, aggregate_method, is_last,index=i)
 
         return True
-
-    def simulate(self, exp_name, global_name, aggregate_method, batch_size=64, epochs=100, max_round=20,grid_Search=False,single_outlier=["f3503_07","f3503_07"]):
+# single_outlier=["f3503_07","f3503_07"]
+    def simulate(self, exp_name, global_name, aggregate_method, batch_size=64, epochs=100, max_round=20,grid_Search=False):
         """
             Simulate federated sequential training over multiple rounds.
 
@@ -312,7 +313,7 @@ class BaseSequentialRunner:
             """
         results_path = project_results_dir / f"{exp_name}_results"
         self.get_writers_split()
-        self.get_selected_outliers(single_outlier)
+        self.get_selected_outliers()
         self.load_global_model(global_name)
         self.get_test_loaders(batch_size)
 

@@ -81,8 +81,8 @@ class BaseConcurrentRunner:
         This applies equally to training runs and grid search experiments.
     """
 
-    def __init__(self, trainer):
-
+    def __init__(self, trainer,single_outlier=None):
+        self.single_outlier=single_outlier
         self.global_clients_all_metrics_acc = None
         self.global_clients_metric_acc = None
         self.global_metrics_acc = None
@@ -263,8 +263,8 @@ class BaseConcurrentRunner:
 
 
 
-
-    def simulate(self, exp_name, global_name, aggregate_method, batch_size=64, epochs=100, max_round=100,grid_Search=False, single_outlier=["f3503_07","f3503_07"]):
+# single_outlier=["f3503_07","f3503_07"]
+    def simulate(self, exp_name, global_name, aggregate_method, batch_size=64, epochs=100, max_round=100,grid_Search=False):
         """
             Simulate federated concurrent training over multiple rounds.
 
@@ -289,8 +289,8 @@ class BaseConcurrentRunner:
             """
         results_path = project_results_dir / f"{exp_name}_results"
         self.selected_outliers, self.accuracies = self.get_selected_outliers()
-        if single_outlier !="None":
-            self.selected_outliers = [sub for sub in self.selected_outliers if sub in single_outlier]
+        if self.single_outlier !="None":
+            self.selected_outliers = [sub for sub in self.selected_outliers if sub in self.single_outlier]
 
         local_writers, global_writers = self.get_writers_split()
         self.all_clients_test_loader, self.global_test_loader = self.get_test_loaders(self.selected_outliers, global_writers, batch_size)
@@ -303,7 +303,7 @@ class BaseConcurrentRunner:
             self.aggregate(aggregate_method)
         if not grid_Search:
             self.get_global_base_accuracy()
-            return self.accuracies, self.global_clients_all_metrics_acc, self.global_clients_metric_acc, self.data_path.base_path / "NIST_EXPERIMENTS"
+            return self.accuracies, self.global_clients_all_metrics_acc, self.global_clients_metric_acc, project_results_dir
         else:
             return self.accuracies, project_results_dir
 

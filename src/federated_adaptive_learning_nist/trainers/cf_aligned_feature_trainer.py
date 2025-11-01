@@ -3,6 +3,7 @@ import torch
 import torch.nn.functional as F
 from tqdm import tqdm
 
+from federated_adaptive_learning_nist.constants import BEST_FEATURE_BETA
 from src.federated_adaptive_learning_nist.data_utils import NistPath
 from src.federated_adaptive_learning_nist.model import FlexibleCNN
 from src.federated_adaptive_learning_nist.nist_logger import NistLogger
@@ -19,7 +20,7 @@ class CFAlignedFeatureTrainer(BaseTrainer):
     def __init__(
         self,
         global_model_path=None,
-        beta=0.1,
+        beta=BEST_FEATURE_BETA,
         learning_rate=1e-3,
         weight_decay=1e-4,
     ):

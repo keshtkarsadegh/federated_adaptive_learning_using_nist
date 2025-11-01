@@ -7,6 +7,7 @@ import torch
 import torch.nn.functional as F
 from tqdm import tqdm
 
+from federated_adaptive_learning_nist.constants import BEST_KD_T, BEST_KD_ALPHA, BEST_EWC_LAMBDA
 from src.federated_adaptive_learning_nist.data_utils import NistPath
 from src.federated_adaptive_learning_nist.model import  FlexibleCNN
 from src.federated_adaptive_learning_nist.nist_logger import NistLogger
@@ -34,9 +35,9 @@ class DistillationEWCTrainer(BaseTrainer):
     def __init__(
         self,
         fisher_path=None,
-        T=8.0,
-        alpha=0.95,
-        ewc_lambda=1.0,
+        T=BEST_KD_T,
+        alpha=BEST_KD_ALPHA,
+        ewc_lambda=BEST_EWC_LAMBDA,
        # match EWCTrainer
     ):
         super().__init__()

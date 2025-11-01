@@ -1,5 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from src.federated_adaptive_learning_nist.trainings.base_trainings import grid_search
+from src.federated_adaptive_learning_nist.trainings.base_trainings import final_training
 """
 training_all_aggs.py — Baseline Federated Learning Aggregation Experiments
 
@@ -92,7 +92,7 @@ def run_all_parallel(outer_max_workers: int = 3, inner_max_workers: int = 12):
     with ThreadPoolExecutor(max_workers=outer_max_workers) as outer:
         futs = [
             outer.submit(
-                grid_search,
+                final_training,
                 inner_max_workers=inner_max_workers,  # <-- inner pool larger than outer
                 **job
             )

@@ -119,7 +119,7 @@ def _limit_cpu_threads_for_child_process():
     except Exception:
         pass
 
-def run_base_train(trainer_name, scenario: str, metadata: str, agg_method_name: str):
+def run_base_train(trainer_name, scenario: str, metadata: str, agg_method_name: str,single_outlier=None):
     """
     Worker entrypoint. Resolves the agg method by name inside the process.
     Returns: (msg, exp_name, accuracies_array, g_all_clients_acc, g_global_acc, result_path_str, agg_method_name)
@@ -144,9 +144,9 @@ def run_base_train(trainer_name, scenario: str, metadata: str, agg_method_name: 
     agg_method = getattr(agg_cls, agg_method_name)
 
     if scenario == "sequential":
-        runner = BaseSequentialRunner(trainer=trainer)
+        runner = BaseSequentialRunner(trainer=trainer,single_outlier=single_outlier)
     else:
-        runner = BaseConcurrentRunner(trainer=trainer)
+        runner = BaseConcurrentRunner(trainer=trainer,single_outlier=single_outlier)
 
     exp_name = f"base_agg_{agg_method_name}_{metadata}_{scenario}"
     NistLogger.info(f"[Parallel] {exp_name}")
@@ -172,7 +172,7 @@ def run_base_train(trainer_name, scenario: str, metadata: str, agg_method_name: 
     )
 
 # --------------- driver --------------------
-def grid_search(
+def final_training(
     trainer_name,
     scenario: str,
     metadata: str,
@@ -180,6 +180,8 @@ def grid_search(
     agg_method_name: str | None = None,
     parent_name: str = "",
     inner_max_workers: int | None = None,   # <-- NEW: lets the caller give inner pool size
+    single_outlier=None,
+
 ):
     """
     Runs one job (defined by scenario/metadata/agg selection).
@@ -198,7 +200,7 @@ def grid_search(
     # run and collect (msg, exp_name, accuracies, g_all_clients_acc, g_global_acc, result_path_str, agg_method_name)
     if len(param_grid) == 1:
         single_name = param_grid[0]
-        single_result = run_base_train(trainer_name, scenario, metadata, single_name)
+        single_result = run_base_train(trainer_name, scenario, metadata, single_name,single_outlier)
         results = [single_result]
         first_result_path_str = single_result[5]
     else:
@@ -216,6 +218,7 @@ def grid_search(
                     itertools.repeat(scenario),
                     itertools.repeat(metadata),
                     param_grid,  # iterable of method names
+                    single_outlier
                 )
             )
         first_result_path_str = results[0][5]
@@ -307,7 +310,7 @@ def main():
                         help="Max workers for inner ProcessPool (0 -> auto).")
     args = parser.parse_args()
 
-    grid_search(
+    final_training(
         trainer_name=args.trainer,
         scenario=args.scenario,
         metadata=args.metadata,
@@ -315,6 +318,7 @@ def main():
         agg_method_name=args.agg_method_name,
         parent_name=args.parent_name,
         inner_max_workers=(args.inner_max_workers or None),
+        single_outlier=None
     )
 
 if __name__ == "__main__":
